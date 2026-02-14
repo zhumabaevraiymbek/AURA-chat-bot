@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA - Air Astana Digital Concierge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Center all SVG icons */
+        svg {
+            display: block;
+            margin: auto;
+        }
+        
+        /* Loader animation */
+        .loader-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1C2B4F 0%, #243550 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+        
+        .loader-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader-icon-wrapper {
+            position: relative;
+            animation: floatPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes floatPulse {
+            0%, 100% {
+                transform: translateY(0px) scale(1);
+            }
+            50% {
+                transform: translateY(-10px) scale(1.05);
+            }
+        }
+        
+        .loader-icon-container {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+        
+        .loader-icon-container::before {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotate 2s linear infinite;
+        }
+        
+        @keyframes rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .loader-icon-container img {
+            width: 48px;
+            height: 48px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Transitioning icon from loader to header */
+        .transitioning-icon {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .transitioning-icon img {
+            width: 48px;
+            height: 48px;
+            filter: brightness(0) invert(1);
+        }
+        
+        .transitioning-icon.move-to-header {
+            width: 16px;
+            height: 16px;
+            border-width: 2px;
+            opacity: 0;
+        }
+        
+        .transitioning-icon.move-to-header img {
+            width: 10px;
+            height: 10px;
+        }
+        
+        /* Header slide up animation for mobile keyboard */
+        .chat-header {
+            transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+        }
+        
+        .chat-header.hidden-mobile {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        
+        /* Adjust chat container when header is hidden */
+        .chat-container {
+            transition: padding-top 0.3s ease-out;
+        }
+        
+        .chat-container.header-hidden {
+            padding-top: 0;
+        }
+        
+        .chat-message {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #64748b;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .grid-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 40 0 L 0 0 0 40' fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+        }
+        
+        .message-bubble {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .quick-action-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .quick-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flight-card {
+            transition: all 0.2s ease;
+        }
+        
+        .flight-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex items-center justify-center p-4">
+    
+    <!-- Initial Loader Screen -->
+    <div id="loader-screen" class="loader-screen">
+        <div class="loader-icon-wrapper">
+            <div class="loader-icon-container">
+                <img 
+                    src="https://airastana.com/favicon.svg" 
+                    alt="Air Astana" 
+                    onerror="this.style.display='none'"
+                />
+            </div>
+        </div>
+    </div>
+    
+    <!-- Transitioning Icon (hidden initially) -->
+    <div id="transitioning-icon" class="transitioning-icon" style="display: none;">
+        <img 
+            src="https://airastana.com/favicon.svg" 
+            alt="Air Astana" 
+            onerror="this.style.display='none'"
+        />
+    </div>
+    
+    <!-- Chat Container -->
+    <div id="app" class="w-full max-w-[440px]"></div>
+
+    <script>
+        // SVG Icons as strings
+        const icons = {
+            plane: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>',
+            briefcase: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>',
+            users: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            send: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>',
+            paperclip: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>',
+            x: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>',
+            clock: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+            checkCircle: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>',
+            alertCircle: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>',
+            xCircle: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>',
+            search: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>',
+            creditCard: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>',
+            fileText: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="10" x2="16" y1="13" y2="13"/><line x1="10" x2="16" y1="17" y2="17"/><line x1="10" x2="12" y1="9" y2="9"/></svg>',
+            mapPin: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
+            messageCircle: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>'
+        };
+
+        // State management
+        let state = {
+            view: 'welcome', // 'welcome' or 'chat'
+            messages: [],
+            inputValue: '',
+            isTyping: false
+        };
+
+        // Sample data
+        const upcomingFlight = {
+            flightNumber: 'KC 105',
+            from: { code: 'ALA', city: 'Almaty', terminal: '1' },
+            to: { code: 'GUW', city: 'Atyrau', terminal: '2' },
+            departure: { time: '14:30', date: 'Feb 15' },
+            arrival: { time: '16:45', date: 'Feb 15' },
+            duration: '2h 15m',
+            stops: 0,
+            status: 'On time',
+            operator: 'Air Astana',
+            gate: 'A12'
+        };
+
+        const availableFlights = [
+            {
+                flightNumber: 'KC 201',
+                from: { code: 'ALA', city: 'Almaty' },
+                to: { code: 'TSE', city: 'Astana' },
+                departure: { time: '09:15', date: 'Feb 15' },
+                arrival: { time: '10:45', date: 'Feb 15' },
+                duration: '1h 30m',
+                stops: 0,
+                price: { amount: 45000, currency: 'KZT' },
+                availableSeats: 12,
+                baggage: '23kg',
+                operator: 'Air Astana'
+            },
+            {
+                flightNumber: 'KC 203',
+                from: { code: 'ALA', city: 'Almaty' },
+                to: { code: 'TSE', city: 'Astana' },
+                departure: { time: '15:30', date: 'Feb 15' },
+                arrival: { time: '17:00', date: 'Feb 15' },
+                duration: '1h 30m',
+                stops: 0,
+                price: { amount: 48500, currency: 'KZT' },
+                availableSeats: 8,
+                baggage: '23kg',
+                operator: 'Air Astana'
+            }
+        ];
+
+        // Helper functions
+        function getStatusColor(status) {
+            switch (status) {
+                case 'On time':
+                case 'Boarding':
+                    return 'bg-green-50 text-green-700';
+                case 'Delayed':
+                    return 'bg-amber-50 text-amber-700';
+                case 'Cancelled':
+                    return 'bg-red-50 text-red-700';
+                default:
+                    return 'bg-slate-50 text-slate-700';
+            }
+        }
+
+        function getStatusIcon(status) {
+            switch (status) {
+                case 'On time':
+                case 'Boarding':
+                    return icons.checkCircle;
+                case 'Delayed':
+                    return icons.alertCircle;
+                case 'Cancelled':
+                    return icons.xCircle;
+                default:
+                    return '';
+            }
+        }
+
+        // Component functions
+        function renderWelcomePage() {
+            return `
+                <div class="w-full bg-white rounded-2xl shadow-2xl shadow-slate-900/10 overflow-hidden flex flex-col max-h-[90vh]">
+                    <!-- Header Section -->
+                    <div class="relative bg-gradient-to-br from-[#1C2B4F] via-[#1C2B4F] to-[#243550] px-6 py-5 text-center flex-shrink-0">
+                        <div class="absolute inset-0 grid-pattern opacity-30"></div>
+                        
+                        <div class="relative">
+                            <!-- Logo -->
+                            <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center mx-auto mb-2 shadow-xl">
+                                <img 
+                                    src="https://airastana.com/favicon.svg" 
+                                    alt="Air Astana" 
+                                    class="w-7 h-7"
+                                    onerror="this.style.display='none'"
+                                />
+                            </div>
+                            
+                            <h1 class="text-xl font-bold text-white mb-0.5 tracking-tight">AURA</h1>
+                            <p class="text-blue-100 text-xs mb-2">Air Astana Digital Concierge</p>
+                            <div class="flex items-center justify-center gap-2">
+                                <div class="w-2 h-2 rounded-full bg-green-400 pulse-dot shadow-lg shadow-green-400/50"></div>
+                                <span class="text-xs text-blue-100">Available</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Section -->
+                    <div class="px-6 py-5 overflow-y-auto flex-1 scrollbar-hide">
+                        <div class="text-center mb-5">
+                            <h2 class="text-slate-900 font-semibold mb-1.5 text-base">Welcome aboard!</h2>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                I'm here to help you with flight information, bookings, and travel assistance.
+                            </p>
+                        </div>
+
+                        <!-- Features Grid -->
+                        <div class="grid grid-cols-2 gap-2.5 mb-4">
+                            ${[
+                                { icon: 'search', title: 'Flight Status', description: 'Track your flights in real-time' },
+                                { icon: 'creditCard', title: 'Check-in', description: 'View check-in requirements' },
+                                { icon: 'fileText', title: 'Travel Information', description: 'Baggage rules and policies' },
+                                { icon: 'mapPin', title: 'Route Planning', description: 'Find flights and schedules' }
+                            ].map(feature => `
+                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 hover:bg-slate-100 hover:border-slate-300 transition-all cursor-pointer group">
+                                    <div class="flex items-center gap-2.5 mb-2">
+                                        <div class="w-8 h-8 rounded-lg bg-[#1C2B4F]/10 flex items-center justify-center group-hover:bg-[#1C2B4F]/15 transition-colors flex-shrink-0">
+                                            <div class="w-4 h-4 text-[#1C2B4F]">${icons[feature.icon]}</div>
+                                        </div>
+                                        <h3 class="text-sm font-semibold text-slate-900 leading-tight">${feature.title}</h3>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-relaxed">${feature.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <!-- Footer Text -->
+                        <p class="text-xs text-center text-slate-500">
+                            Powered by Air Astana • Secure & Private
+                        </p>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="flex-shrink-0 border-t border-slate-200 bg-white p-4">
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1">
+                                <textarea 
+                                    id="welcome-input"
+                                    rows="1" 
+                                    placeholder="Type your message here..."
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C2B4F] focus:border-transparent resize-none text-sm"
+                                    style="max-height: 120px;"
+                                ></textarea>
+                            </div>
+                            <button 
+                                onclick="startChat()"
+                                class="w-12 h-12 bg-[#1C2B4F] text-white rounded-xl hover:bg-[#243550] transition-colors flex items-center justify-center flex-shrink-0"
+                            >
+                                <div class="w-5 h-5">${icons.send}</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderFlightCard(flight, variant = 'detailed', showPrice = false) {
+            if (variant === 'compact') {
+                return `
+                    <div class="bg-white border border-slate-200 rounded-lg p-3 flight-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="font-semibold text-sm text-slate-900">${flight.flightNumber}</span>
+                            ${flight.status ? `
+                                <div class="flex items-center gap-1 ${getStatusColor(flight.status)} px-2 py-0.5 rounded-full">
+                                    <div class="w-3.5 h-3.5">${getStatusIcon(flight.status)}</div>
+                                    <span class="text-xs font-medium">${flight.status}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-lg font-bold text-slate-900">${flight.departure.time}</p>
+                                <p class="text-xs text-slate-500">${flight.from.code}</p>
+                            </div>
+                            
+                            <div class="flex-1 mx-3 flex flex-col items-center">
+                                <div class="w-4 h-4 text-slate-400 mb-1">${icons.plane}</div>
+                                <div class="w-full border-t border-dashed border-slate-300"></div>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    ${flight.stops === 0 ? 'Direct' : `${flight.stops} stop${flight.stops > 1 ? 's' : ''}`}
+                                </p>
+                            </div>
+                            
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-slate-900">${flight.arrival.time}</p>
+                                <p class="text-xs text-slate-500">${flight.to.code}</p>
+                            </div>
+                        </div>
+
+                        ${showPrice && flight.price ? `
+                            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                                <p class="text-xs text-slate-600">
+                                    ${flight.operator ? `Operated by ${flight.operator}` : ''}
+                                </p>
+                                <p class="font-semibold text-slate-900">
+                                    ${flight.price.currency} ${flight.price.amount.toLocaleString()}
+                                </p>
+                            </div>
+                            <button
+                                class="w-full mt-3 bg-[#1C2B4F] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#243550] transition-colors"
+                            >
+                                Book Flight
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            // Detailed variant
+            return `
+                <div class="bg-white border border-slate-200 rounded-xl p-4 space-y-4 flight-card">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="font-semibold text-slate-900">${flight.flightNumber}</p>
+                            <p class="text-sm text-slate-600 flex items-center gap-1.5 mt-0.5">
+                                <div class="w-3.5 h-3.5">${icons.plane}</div>
+                                ${flight.from.city} → ${flight.to.city}
+                            </p>
+                            ${flight.operator ? `
+                                <p class="text-xs text-slate-500 mt-1">Operated by ${flight.operator}</p>
+                            ` : ''}
+                        </div>
+                        ${flight.status ? `
+                            <div class="flex items-center gap-1.5 ${getStatusColor(flight.status)} px-2.5 py-1 rounded-full">
+                                <div class="w-3.5 h-3.5">${getStatusIcon(flight.status)}</div>
+                                <span class="text-xs font-medium">${flight.status}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs text-slate-500 mb-1">Departure</p>
+                            <p class="text-xl font-bold text-slate-900">${flight.departure.time}</p>
+                            <p class="text-sm text-slate-600">${flight.from.code}</p>
+                            ${flight.from.terminal ? `
+                                <p class="text-xs text-slate-500 mt-1">Terminal ${flight.from.terminal}</p>
+                            ` : ''}
+                        </div>
+
+                        <div class="text-right">
+                            <p class="text-xs text-slate-500 mb-1">Arrival</p>
+                            <p class="text-xl font-bold text-slate-900">${flight.arrival.time}</p>
+                            <p class="text-sm text-slate-600">${flight.to.code}</p>
+                            ${flight.to.terminal ? `
+                                <p class="text-xs text-slate-500 mt-1">Terminal ${flight.to.terminal}</p>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100">
+                        ${flight.duration ? `
+                            <div class="flex items-center gap-1">
+                                <div class="w-3.5 h-3.5">${icons.clock}</div>
+                                <span>${flight.duration}</span>
+                            </div>
+                        ` : ''}
+                        <span>${flight.stops === 0 ? 'Direct flight' : `${flight.stops} stop(s)`}</span>
+                        ${flight.gate ? `<span>Gate ${flight.gate}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderChatView() {
+            return `
+                <div class="w-full bg-white rounded-xl shadow-2xl shadow-slate-900/10 flex flex-col overflow-hidden max-h-[90vh] chat-container">
+                    <!-- Header -->
+                    <div id="chat-header" class="chat-header bg-gradient-to-r from-[#1C2B4F] to-[#243550] px-4 py-3 flex items-center justify-between flex-shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+                                <img 
+                                    src="https://airastana.com/favicon.svg" 
+                                    alt="AURA" 
+                                    class="w-6 h-6"
+                                    onerror="this.style.display='none'"
+                                />
+                            </div>
+                            <div>
+                                <h2 class="text-white font-semibold text-sm">AURA</h2>
+                                <p class="text-blue-100 text-xs flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-400 pulse-dot"></span>
+                                    Online
+                                </p>
+                            </div>
+                        </div>
+                        <button 
+                            onclick="goBackToWelcome()"
+                            class="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors"
+                        >
+                            <div class="w-5 h-5 text-white">${icons.x}</div>
+                        </button>
+                    </div>
+                    
+                    <!-- Messages -->
+                    <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide" style="max-height: calc(90vh - 180px);">
+                        ${renderMessages()}
+                    </div>
+                    
+                    <!-- Input -->
+                    <div class="flex-shrink-0 border-t border-slate-200 bg-white p-4">
+                        <div class="flex items-center gap-2">
+                            <button class="w-10 h-10 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors flex-shrink-0">
+                                <div class="w-5 h-5 text-slate-600">${icons.paperclip}</div>
+                            </button>
+                            <div class="flex-1">
+                                <textarea 
+                                    id="chat-input"
+                                    rows="1" 
+                                    placeholder="Type your message..."
+                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C2B4F] focus:border-transparent resize-none text-sm"
+                                    style="max-height: 120px;"
+                                    onkeydown="handleKeyDown(event)"
+                                    onfocus="handleInputFocus()"
+                                    onblur="handleInputBlur()"
+                                ></textarea>
+                            </div>
+                            <button 
+                                onclick="sendMessage()"
+                                class="w-10 h-10 bg-[#1C2B4F] text-white rounded-xl hover:bg-[#243550] transition-colors flex items-center justify-center flex-shrink-0"
+                            >
+                                <div class="w-5 h-5">${icons.send}</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderMessages() {
+            let html = '';
+            
+            state.messages.forEach(msg => {
+                if (msg.type === 'assistant') {
+                    html += `
+                        <div class="flex gap-2 chat-message">
+                            <div class="w-8 h-8 rounded-full bg-[#1C2B4F] flex items-center justify-center flex-shrink-0">
+                                <div class="w-4 h-4 text-white">${icons.messageCircle}</div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-3 inline-block message-bubble">
+                                    <p class="text-sm text-slate-900">${msg.content}</p>
+                                </div>
+                                ${msg.flights ? renderFlightsInMessage(msg.flights) : ''}
+                            </div>
+                        </div>
+                    `;
+                } else if (msg.type === 'user') {
+                    html += `
+                        <div class="flex gap-2 justify-end chat-message">
+                            <div class="bg-[#1C2B4F] text-white rounded-2xl rounded-tr-none px-4 py-3 inline-block message-bubble max-w-[80%]">
+                                <p class="text-sm">${msg.content}</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (msg.type === 'quick-actions') {
+                    html += `
+                        <div class="flex gap-2 chat-message">
+                            <div class="w-8"></div>
+                            <div class="flex flex-wrap gap-2">
+                                ${msg.actions.map(action => `
+                                    <button 
+                                        onclick="handleQuickAction('${action.label}')"
+                                        class="quick-action-btn bg-white border border-slate-300 px-4 py-2 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-400 transition-all flex items-center gap-2"
+                                    >
+                                        <div class="w-4 h-4">${icons[action.icon]}</div>
+                                        ${action.label}
+                                    </button>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (state.isTyping) {
+                html += `
+                    <div class="flex gap-2 chat-message">
+                        <div class="w-8 h-8 rounded-full bg-[#1C2B4F] flex items-center justify-center flex-shrink-0">
+                            <div class="w-4 h-4 text-white">${icons.messageCircle}</div>
+                        </div>
+                        <div class="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-3 inline-block">
+                            <div class="typing-indicator">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return html;
+        }
+
+        function renderFlightsInMessage(flights) {
+            const { type, data } = flights;
+            
+            if (type === 'detailed') {
+                return `<div class="mt-3">${renderFlightCard(data, 'detailed')}</div>`;
+            } else if (type === 'compact-list') {
+                return `
+                    <div class="mt-3 grid grid-cols-2 gap-2">
+                        ${data.map(flight => renderFlightCard(flight, 'compact', true)).join('')}
+                    </div>
+                `;
+            }
+            
+            return '';
+        }
+
+        // Event handlers
+        function startChat() {
+            const input = document.getElementById('welcome-input');
+            const message = input.value.trim();
+            
+            state.view = 'chat';
+            state.messages = [
+                {
+                    type: 'assistant',
+                    content: "Hello! I'm AURA, your Air Astana Digital Concierge. How can I assist you today?"
+                },
+                {
+                    type: 'quick-actions',
+                    actions: [
+                        { label: 'Flight status', icon: 'plane' },
+                        { label: 'Baggage rules', icon: 'briefcase' },
+                        { label: 'Flight schedule', icon: 'users' }
+                    ]
+                }
+            ];
+            
+            if (message) {
+                state.messages.push({
+                    type: 'user',
+                    content: message
+                });
+                
+                // Simulate response
+                setTimeout(() => {
+                    respondToMessage(message);
+                }, 1000);
+            }
+            
+            render();
+            setTimeout(scrollToBottom, 100);
+        }
+
+        function goBackToWelcome() {
+            state.view = 'welcome';
+            state.messages = [];
+            render();
+        }
+
+        function handleQuickAction(action) {
+            if (action === 'Flight status') {
+                sendMessage('Show my flight status');
+            } else if (action === 'Baggage rules') {
+                sendMessage('What are the baggage rules?');
+            } else if (action === 'Flight schedule') {
+                sendMessage('Show me flight schedule');
+            }
+        }
+
+        function sendMessage(customMessage) {
+            const input = document.getElementById('chat-input');
+            const message = customMessage || input.value.trim();
+            
+            if (!message) return;
+            
+            state.messages.push({
+                type: 'user',
+                content: message
+            });
+            
+            if (input) {
+                input.value = '';
+                input.style.height = 'auto';
+            }
+            
+            render();
+            scrollToBottom();
+            
+            // Simulate AI response
+            state.isTyping = true;
+            render();
+            scrollToBottom();
+            
+            setTimeout(() => {
+                state.isTyping = false;
+                respondToMessage(message);
+            }, 1500);
+        }
+
+        function respondToMessage(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('flight status') || lowerMessage.includes('my flight')) {
+                state.messages.push({
+                    type: 'assistant',
+                    content: "Here's your upcoming flight information:",
+                    flights: {
+                        type: 'detailed',
+                        data: upcomingFlight
+                    }
+                });
+            } else if (lowerMessage.includes('astana') || lowerMessage.includes('other flight')) {
+                state.messages.push({
+                    type: 'assistant',
+                    content: "I found 2 available flights from Almaty to Astana today:",
+                    flights: {
+                        type: 'compact-list',
+                        data: availableFlights
+                    }
+                });
+            } else if (lowerMessage.includes('baggage')) {
+                state.messages.push({
+                    type: 'assistant',
+                    content: "For Economy Class, you're allowed 1 piece of checked baggage up to 23kg and 1 carry-on up to 8kg. Business Class allows 2 pieces of 32kg each. Would you like more specific information about baggage restrictions?"
+                });
+            } else {
+                state.messages.push({
+                    type: 'assistant',
+                    content: "I'd be happy to help you with that! I can assist with flight status, bookings, baggage information, and general travel inquiries. What would you like to know more about?"
+                });
+            }
+            
+            render();
+            scrollToBottom();
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+            
+            // Auto-resize textarea
+            const textarea = event.target;
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+        }
+
+        function scrollToBottom() {
+            const container = document.getElementById('messages-container');
+            if (container) {
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // Handle input focus - hide header on mobile
+        function handleInputFocus() {
+            if ('ontouchstart' in window && window.innerWidth <= 768) {
+                const header = document.getElementById('chat-header');
+                const container = document.querySelector('.chat-container');
+                if (header) {
+                    header.classList.add('hidden-mobile');
+                }
+                if (container) {
+                    container.classList.add('header-hidden');
+                }
+            }
+        }
+
+        // Handle input blur - show header again
+        function handleInputBlur() {
+            if ('ontouchstart' in window && window.innerWidth <= 768) {
+                setTimeout(() => {
+                    const header = document.getElementById('chat-header');
+                    const container = document.querySelector('.chat-container');
+                    if (header) {
+                        header.classList.remove('hidden-mobile');
+                    }
+                    if (container) {
+                        container.classList.remove('header-hidden');
+                    }
+                }, 100);
+            }
+        }
+
+        // Main render function
+        function render() {
+            const app = document.getElementById('app');
+            
+            if (state.view === 'welcome') {
+                app.innerHTML = renderWelcomePage();
+                
+                // Auto-resize textarea
+                const textarea = document.getElementById('welcome-input');
+                if (textarea) {
+                    // Auto-focus on page load (desktop and mobile)
+                    setTimeout(() => {
+                        textarea.focus();
+                        // For mobile devices, trigger keyboard
+                        if ('ontouchstart' in window) {
+                            textarea.click();
+                        }
+                    }, 100);
+                    
+                    textarea.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                    });
+                    
+                    textarea.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            startChat();
+                        }
+                    });
+                }
+            } else {
+                app.innerHTML = renderChatView();
+                
+                // Focus input
+                const input = document.getElementById('chat-input');
+                if (input) {
+                    // Auto-focus with mobile keyboard support
+                    setTimeout(() => {
+                        input.focus();
+                        // For mobile devices, trigger keyboard
+                        if ('ontouchstart' in window) {
+                            input.click();
+                        }
+                    }, 100);
+                    
+                    // Auto-resize textarea
+                    input.addEventListener('input', function() {
+                        this.style.height = 'auto';
+                        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                    });
+                }
+            }
+        }
+
+        // Initialize
+        function initApp() {
+            render();
+            
+            // Start the transition after 1 second
+            setTimeout(() => {
+                const loaderScreen = document.getElementById('loader-screen');
+                const transitioningIcon = document.getElementById('transitioning-icon');
+                const loaderIcon = document.querySelector('.loader-icon-container');
+                
+                if (loaderIcon && transitioningIcon) {
+                    // Get the current position of the loader icon
+                    const iconRect = loaderIcon.getBoundingClientRect();
+                    
+                    // Show transitioning icon at loader position
+                    transitioningIcon.style.display = 'flex';
+                    transitioningIcon.style.left = iconRect.left + 'px';
+                    transitioningIcon.style.top = iconRect.top + 'px';
+                    
+                    // Hide loader screen
+                    if (loaderScreen) {
+                        loaderScreen.classList.add('fade-out');
+                        setTimeout(() => {
+                            loaderScreen.style.display = 'none';
+                        }, 500);
+                    }
+                    
+                    // Wait for render to complete, then move icon to header logo
+                    setTimeout(() => {
+                        const headerLogo = document.querySelector('.w-12.h-12.rounded-full');
+                        if (headerLogo) {
+                            const headerRect = headerLogo.getBoundingClientRect();
+                            
+                            // Move icon to header logo position
+                            transitioningIcon.style.left = (headerRect.left + headerRect.width / 2 - 40) + 'px';
+                            transitioningIcon.style.top = (headerRect.top + headerRect.height / 2 - 40) + 'px';
+                            transitioningIcon.classList.add('move-to-header');
+                            
+                            // Remove transitioning icon after animation
+                            setTimeout(() => {
+                                transitioningIcon.style.display = 'none';
+                            }, 600);
+                        }
+                    }, 100);
+                } else {
+                    // Fallback: just hide the loader if elements not found
+                    if (loaderScreen) {
+                        loaderScreen.style.display = 'none';
+                    }
+                }
+            }, 1000);
+        }
+        
+        // Handle different loading states
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+    </script>
+</body>
+</html>
