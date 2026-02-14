@@ -612,10 +612,10 @@
                         <button 
                             id="scroll-to-bottom-btn"
                             onclick="scrollToEndOfMessage()"
-                            class="hidden fixed bottom-24 right-6 md:right-auto md:left-[calc(50%+180px)] bg-[#1C2B4F] text-white rounded-full p-3 shadow-lg hover:bg-[#243550] transition-all z-50"
+                            class="hidden fixed bottom-24 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm border-2 border-[#1C2B4F] text-[#1C2B4F] rounded-full p-2 shadow-lg hover:bg-white transition-all z-50"
                             style="display: none;"
                         >
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                 <path d="M12 5v14M19 12l-7 7-7-7"/>
                             </svg>
                         </button>
@@ -660,8 +660,13 @@
             // НЕ делаем reverse!
             state.messages.forEach((msg, index) => {
                 if (msg.type === 'user') {
+                    // Добавляем дополнительный отступ перед user сообщением (начало нового обмена)
+                    // Но НЕ для первого сообщения
+                    const isFirstMessage = index === 0;
+                    const extraMargin = !isFirstMessage ? 'mt-4' : ''; // +16px сверху
+                    
                     html += `
-                        <div class="flex justify-end w-full chat-message px-2" style="display: flex !important; justify-content: flex-end !important; width: 100%;">
+                        <div class="flex justify-end w-full chat-message px-2 ${extraMargin}" style="display: flex !important; justify-content: flex-end !important; width: 100%;">
                             <div class="bg-[#1C2B4F] text-white rounded-2xl rounded-tr-none px-4 py-2.5 message-bubble max-w-[85%]">
                                 <p class="text-sm">${msg.content}</p>
                             </div>
@@ -756,14 +761,19 @@
             // Render with message immediately
             render();
             
-            // Scroll to top where newest messages are
-            scrollToBottom();
-            
             if (message) {
+                // Показываем typing indicator
+                state.isTyping = true;
+                render();
+                scrollToBottom(true); // Плавный скролл
+                
                 // Simulate response
                 setTimeout(() => {
+                    state.isTyping = false;
                     respondToMessage(message);
-                }, 1000);
+                }, 1500);
+            } else {
+                scrollToBottom(true);
             }
         }
 
@@ -899,13 +909,13 @@
                                 if (smooth) {
                                     // Плавный скролл (первый раз)
                                     container.scrollTo({
-                                        top: messageTop - 95,
+                                        top: messageTop - 16,
                                         behavior: 'auto' // CSS scroll-behavior: smooth сработает
                                     });
                                 } else {
                                     // Мгновенный скролл (при появлении ответа)
                                     container.style.scrollBehavior = 'auto';
-                                    container.scrollTop = messageTop - 95;
+                                    container.scrollTop = messageTop - 16;
                                     // Возвращаем обратно
                                     setTimeout(() => {
                                         container.style.scrollBehavior = '';
