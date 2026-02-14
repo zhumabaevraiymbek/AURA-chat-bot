@@ -12,10 +12,23 @@
             font-family: 'Inter', sans-serif;
         }
         
-        /* Center all SVG icons */
+        /* Center all SVG icons properly */
         svg {
             display: block;
-            margin: auto;
+        }
+        
+        /* Icon wrapper classes should use flexbox */
+        div[class*="w-"][class*="h-"] {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Ensure SVGs fill their containers properly */
+        svg {
+            width: 100%;
+            height: 100%;
+            flex-shrink: 0;
         }
         
         /* Loader animation */
@@ -253,7 +266,7 @@
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex items-center justify-center">
     
     <!-- Initial Loader Screen -->
     <div id="loader-screen" class="loader-screen">
@@ -278,7 +291,7 @@
     </div>
     
     <!-- Chat Container -->
-    <div id="app" class="w-full max-w-[440px]"></div>
+    <div id="app" class="w-full h-screen md:h-auto md:max-w-[440px] md:mx-auto"></div>
 
     <script>
         // SVG Icons as strings
@@ -383,12 +396,12 @@
         // Component functions
         function renderWelcomePage() {
             return `
-                <div class="w-full bg-white rounded-2xl shadow-2xl shadow-slate-900/10 overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="w-full bg-white shadow-2xl shadow-slate-900/10 overflow-hidden flex flex-col max-h-[90vh]">
                     <!-- Header Section -->
-                    <div class="relative bg-gradient-to-br from-[#1C2B4F] via-[#1C2B4F] to-[#243550] px-6 py-5 text-center flex-shrink-0">
+                    <div class="relative bg-gradient-to-br from-[#1C2B4F] via-[#1C2B4F] to-[#243550] py-5 text-center flex-shrink-0 w-full">
                         <div class="absolute inset-0 grid-pattern opacity-30"></div>
                         
-                        <div class="relative">
+                        <div class="relative max-w-[440px] mx-auto px-6">
                             <!-- Logo -->
                             <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center mx-auto mb-2 shadow-xl">
                                 <img 
@@ -409,7 +422,8 @@
                     </div>
 
                     <!-- Content Section -->
-                    <div class="px-6 py-5 overflow-y-auto flex-1 scrollbar-hide">
+                    <div class="overflow-y-auto flex-1 scrollbar-hide">
+                        <div class="max-w-[440px] mx-auto px-6 py-5">
                         <div class="text-center mb-5">
                             <h2 class="text-slate-900 font-semibold mb-1.5 text-base">Welcome aboard!</h2>
                             <p class="text-sm text-slate-600 leading-relaxed">
@@ -428,7 +442,7 @@
                                 <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 hover:bg-slate-100 hover:border-slate-300 transition-all cursor-pointer group">
                                     <div class="flex items-center gap-2.5 mb-2">
                                         <div class="w-8 h-8 rounded-lg bg-[#1C2B4F]/10 flex items-center justify-center group-hover:bg-[#1C2B4F]/15 transition-colors flex-shrink-0">
-                                            <div class="w-4 h-4 text-[#1C2B4F]">${icons[feature.icon]}</div>
+                                            <div class="w-4 h-4 text-[#1C2B4F] flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons[feature.icon]}</div>
                                         </div>
                                         <h3 class="text-sm font-semibold text-slate-900 leading-tight">${feature.title}</h3>
                                     </div>
@@ -441,26 +455,29 @@
                         <p class="text-xs text-center text-slate-500">
                             Powered by Air Astana • Secure & Private
                         </p>
+                        </div>
                     </div>
 
                     <!-- Input Area -->
-                    <div class="flex-shrink-0 border-t border-slate-200 bg-white p-4">
-                        <div class="flex items-center gap-2">
+                    <div class="flex-shrink-0 border-t border-slate-200 bg-white w-full">
+                        <div class="max-w-[440px] mx-auto px-4 py-4">
+                            <div class="flex items-stretch gap-2">
                             <div class="flex-1">
                                 <textarea 
                                     id="welcome-input"
                                     rows="1" 
                                     placeholder="Type your message here..."
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C2B4F] focus:border-transparent resize-none text-sm"
-                                    style="max-height: 120px;"
+                                    class="w-full h-12 px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C2B4F] focus:border-transparent resize-none text-sm"
+                                    style="max-height: 120px; min-height: 48px;"
                                 ></textarea>
                             </div>
                             <button 
                                 onclick="startChat()"
                                 class="w-12 h-12 bg-[#1C2B4F] text-white rounded-xl hover:bg-[#243550] transition-colors flex items-center justify-center flex-shrink-0"
                             >
-                                <div class="w-5 h-5">${icons.send}</div>
+                                <div class="w-5 h-5 flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons.send}</div>
                             </button>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -578,9 +595,10 @@
 
         function renderChatView() {
             return `
-                <div class="w-full bg-white rounded-xl shadow-2xl shadow-slate-900/10 flex flex-col overflow-hidden max-h-[90vh] chat-container">
+                <div class="w-full bg-white shadow-2xl shadow-slate-900/10 flex flex-col overflow-hidden max-h-[90vh] chat-container">
                     <!-- Header -->
-                    <div id="chat-header" class="chat-header bg-gradient-to-r from-[#1C2B4F] to-[#243550] px-4 py-3 flex items-center justify-between flex-shrink-0">
+                    <div id="chat-header" class="chat-header bg-gradient-to-r from-[#1C2B4F] to-[#243550] py-3 flex items-center justify-between flex-shrink-0 w-full">
+                        <div class="max-w-[440px] mx-auto px-4 w-full flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
                                 <img 
@@ -602,28 +620,32 @@
                             onclick="goBackToWelcome()"
                             class="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors"
                         >
-                            <div class="w-5 h-5 text-white">${icons.x}</div>
+                            <div class="w-5 h-5 text-white flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons.x}</div>
                         </button>
+                        </div>
                     </div>
                     
                     <!-- Messages -->
-                    <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide" style="max-height: calc(90vh - 180px);">
+                    <div id="messages-container" class="flex-1 overflow-y-auto scrollbar-hide flex flex-col-reverse" style="max-height: calc(90vh - 180px);">
+                        <div class="max-w-[440px] mx-auto px-4 py-4 space-y-4 w-full">
                         ${renderMessages()}
+                        </div>
                     </div>
                     
                     <!-- Input -->
-                    <div class="flex-shrink-0 border-t border-slate-200 bg-white p-4">
-                        <div class="flex items-center gap-2">
-                            <button class="w-10 h-10 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors flex-shrink-0">
-                                <div class="w-5 h-5 text-slate-600">${icons.paperclip}</div>
+                    <div class="flex-shrink-0 border-t border-slate-200 bg-white w-full">
+                        <div class="max-w-[440px] mx-auto px-4 py-4">
+                            <div class="flex items-stretch gap-2">
+                            <button class="w-10 h-12 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors flex-shrink-0">
+                                <div class="w-5 h-5 text-slate-600 flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons.paperclip}</div>
                             </button>
                             <div class="flex-1">
                                 <textarea 
                                     id="chat-input"
                                     rows="1" 
                                     placeholder="Type your message..."
-                                    class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C2B4F] focus:border-transparent resize-none text-sm"
-                                    style="max-height: 120px;"
+                                    class="w-full h-12 px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1C2B4F] focus:border-transparent resize-none text-sm"
+                                    style="max-height: 120px; min-height: 48px;"
                                     onkeydown="handleKeyDown(event)"
                                     onfocus="handleInputFocus()"
                                     onblur="handleInputBlur()"
@@ -631,10 +653,11 @@
                             </div>
                             <button 
                                 onclick="sendMessage()"
-                                class="w-10 h-10 bg-[#1C2B4F] text-white rounded-xl hover:bg-[#243550] transition-colors flex items-center justify-center flex-shrink-0"
+                                class="w-10 h-12 bg-[#1C2B4F] text-white rounded-xl hover:bg-[#243550] transition-colors flex items-center justify-center flex-shrink-0"
                             >
-                                <div class="w-5 h-5">${icons.send}</div>
+                                <div class="w-5 h-5 flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons.send}</div>
                             </button>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -644,7 +667,10 @@
         function renderMessages() {
             let html = '';
             
-            state.messages.forEach(msg => {
+            // Render messages in reverse order (newest first)
+            const reversedMessages = [...state.messages].reverse();
+            
+            reversedMessages.forEach(msg => {
                 if (msg.type === 'assistant') {
                     html += `
                         <div class="flex gap-2 chat-message">
@@ -757,7 +783,7 @@
             }
             
             render();
-            setTimeout(scrollToBottom, 100);
+            setTimeout(scrollToTop, 100);
         }
 
         function goBackToWelcome() {
@@ -793,12 +819,12 @@
             }
             
             render();
-            scrollToBottom();
+            scrollToTop();
             
             // Simulate AI response
             state.isTyping = true;
             render();
-            scrollToBottom();
+            scrollToTop();
             
             setTimeout(() => {
                 state.isTyping = false;
@@ -840,7 +866,7 @@
             }
             
             render();
-            scrollToBottom();
+            scrollToTop();
         }
 
         function handleKeyDown(event) {
@@ -855,10 +881,10 @@
             textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
 
-        function scrollToBottom() {
+        function scrollToTop() {
             const container = document.getElementById('messages-container');
             if (container) {
-                container.scrollTop = container.scrollHeight;
+                container.scrollTop = 0;
             }
         }
 
