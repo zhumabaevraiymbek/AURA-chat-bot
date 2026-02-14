@@ -116,40 +116,6 @@
             }
         }
         
-        /* Transitioning icon from loader to header */
-        .transitioning-icon {
-            position: fixed;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        
-        .transitioning-icon img {
-            width: 48px;
-            height: 48px;
-            filter: brightness(0) invert(1);
-        }
-        
-        .transitioning-icon.move-to-header {
-            width: 16px;
-            height: 16px;
-            border-width: 2px;
-            opacity: 0;
-        }
-        
-        .transitioning-icon.move-to-header img {
-            width: 10px;
-            height: 10px;
-        }
-        
         /* Header slide up animation for mobile keyboard */
         .chat-header {
             transition: transform 0.3s ease-out, opacity 0.3s ease-out;
@@ -170,7 +136,27 @@
         }
         
         .chat-message {
-            animation: slideIn 0.3s ease-out;
+            /* No animation - instant rendering */
+            will-change: auto;
+            /* Force immediate flex layout */
+            contain: layout;
+        }
+        
+        /* Force justify-end to apply immediately */
+        .justify-end {
+            justify-content: flex-end !important;
+            display: flex !important;
+        }
+        
+        /* Ensure flex containers render instantly with full width */
+        .flex {
+            will-change: auto;
+            display: flex !important;
+        }
+        
+        /* Force width on w-full */
+        .w-full {
+            width: 100% !important;
         }
         
         @keyframes slideIn {
@@ -281,15 +267,6 @@
         </div>
     </div>
     
-    <!-- Transitioning Icon (hidden initially) -->
-    <div id="transitioning-icon" class="transitioning-icon" style="display: none;">
-        <img 
-            src="https://airastana.com/favicon.svg" 
-            alt="Air Astana" 
-            onerror="this.style.display='none'"
-        />
-    </div>
-    
     <!-- Chat Container -->
     <div id="app" class="w-full h-screen md:h-auto md:max-w-[440px] md:mx-auto"></div>
 
@@ -396,53 +373,53 @@
         // Component functions
         function renderWelcomePage() {
             return `
-                <div class="w-full bg-white shadow-2xl shadow-slate-900/10 overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="w-full bg-white shadow-2xl shadow-slate-900/10 overflow-hidden flex flex-col h-screen md:h-[600px]">
                     <!-- Header Section -->
-                    <div class="relative bg-gradient-to-br from-[#1C2B4F] via-[#1C2B4F] to-[#243550] py-5 text-center flex-shrink-0 w-full">
+                    <div class="relative bg-gradient-to-br from-[#1C2B4F] via-[#1C2B4F] to-[#243550] py-4 text-center flex-shrink-0 w-full">
                         <div class="absolute inset-0 grid-pattern opacity-30"></div>
                         
-                        <div class="relative max-w-[440px] mx-auto px-6">
+                        <div class="relative max-w-[440px] mx-auto px-4">
                             <!-- Logo -->
-                            <div class="w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center mx-auto mb-2 shadow-xl">
+                            <div class="w-14 h-14 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center mx-auto mb-2 shadow-xl">
                                 <img 
                                     src="https://airastana.com/favicon.svg" 
                                     alt="Air Astana" 
-                                    class="w-7 h-7"
+                                    class="w-8 h-8"
                                     onerror="this.style.display='none'"
                                 />
                             </div>
                             
                             <h1 class="text-xl font-bold text-white mb-0.5 tracking-tight">AURA</h1>
-                            <p class="text-blue-100 text-xs mb-2">Air Astana Digital Concierge</p>
+                            <p class="text-blue-100 text-sm mb-2">Air Astana Digital Concierge</p>
                             <div class="flex items-center justify-center gap-2">
                                 <div class="w-2 h-2 rounded-full bg-green-400 pulse-dot shadow-lg shadow-green-400/50"></div>
-                                <span class="text-xs text-blue-100">Available</span>
+                                <span class="text-sm text-blue-100">Available</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Content Section -->
                     <div class="overflow-y-auto flex-1 scrollbar-hide">
-                        <div class="max-w-[440px] mx-auto px-6 py-5">
-                        <div class="text-center mb-5">
-                            <h2 class="text-slate-900 font-semibold mb-1.5 text-base">Welcome aboard!</h2>
+                        <div class="max-w-[440px] mx-auto px-4 pt-3 pb-0">
+                        <div class="text-center mb-3">
+                            <h2 class="text-slate-900 font-semibold mb-1 text-base">Welcome aboard!</h2>
                             <p class="text-sm text-slate-600 leading-relaxed">
-                                I'm here to help you with flight information, bookings, and travel assistance.
+                                I'm here to help you with flights and travel assistance.
                             </p>
                         </div>
 
                         <!-- Features Grid -->
-                        <div class="grid grid-cols-2 gap-2.5 mb-4">
+                        <div class="grid grid-cols-2 gap-2 mb-3">
                             ${[
-                                { icon: 'search', title: 'Flight Status', description: 'Track your flights in real-time' },
-                                { icon: 'creditCard', title: 'Check-in', description: 'View check-in requirements' },
-                                { icon: 'fileText', title: 'Travel Information', description: 'Baggage rules and policies' },
+                                { icon: 'search', title: 'Flight Status', description: 'Track flights in real-time' },
+                                { icon: 'creditCard', title: 'Check-in', description: 'Check-in requirements' },
+                                { icon: 'fileText', title: 'Travel Info', description: 'Baggage and policies' },
                                 { icon: 'mapPin', title: 'Route Planning', description: 'Find flights and schedules' }
                             ].map(feature => `
-                                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 hover:bg-slate-100 hover:border-slate-300 transition-all cursor-pointer group">
+                                <div class="bg-slate-50 border border-slate-200 rounded-lg p-3 hover:bg-slate-100 hover:border-slate-300 transition-all cursor-pointer group">
                                     <div class="flex items-center gap-2.5 mb-2">
-                                        <div class="w-8 h-8 rounded-lg bg-[#1C2B4F]/10 flex items-center justify-center group-hover:bg-[#1C2B4F]/15 transition-colors flex-shrink-0">
-                                            <div class="w-4 h-4 text-[#1C2B4F] flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons[feature.icon]}</div>
+                                        <div class="w-9 h-9 rounded-lg bg-[#1C2B4F]/10 flex items-center justify-center group-hover:bg-[#1C2B4F]/15 transition-colors flex-shrink-0">
+                                            <div class="w-5 h-5 text-[#1C2B4F] flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons[feature.icon]}</div>
                                         </div>
                                         <h3 class="text-sm font-semibold text-slate-900 leading-tight">${feature.title}</h3>
                                     </div>
@@ -460,7 +437,7 @@
 
                     <!-- Input Area -->
                     <div class="flex-shrink-0 border-t border-slate-200 bg-white w-full">
-                        <div class="max-w-[440px] mx-auto px-4 py-4">
+                        <div class="max-w-[440px] mx-auto px-3 py-3">
                             <div class="flex items-stretch gap-2">
                             <div class="flex-1">
                                 <textarea 
@@ -595,16 +572,16 @@
 
         function renderChatView() {
             return `
-                <div class="w-full bg-white shadow-2xl shadow-slate-900/10 flex flex-col overflow-hidden max-h-[90vh] chat-container">
+                <div class="w-full bg-white shadow-2xl shadow-slate-900/10 flex flex-col overflow-hidden h-screen md:h-[600px] chat-container">
                     <!-- Header -->
-                    <div id="chat-header" class="chat-header bg-gradient-to-r from-[#1C2B4F] to-[#243550] py-3 flex items-center justify-between flex-shrink-0 w-full">
-                        <div class="max-w-[440px] mx-auto px-4 w-full flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+                    <div id="chat-header" class="chat-header bg-gradient-to-r from-[#1C2B4F] to-[#243550] py-2 flex items-center justify-between flex-shrink-0 w-full">
+                        <div class="max-w-[440px] mx-auto px-2 w-full flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <div class="w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
                                 <img 
                                     src="https://airastana.com/favicon.svg" 
                                     alt="AURA" 
-                                    class="w-6 h-6"
+                                    class="w-5 h-5"
                                     onerror="this.style.display='none'"
                                 />
                             </div>
@@ -618,18 +595,30 @@
                         </div>
                         <button 
                             onclick="goBackToWelcome()"
-                            class="w-8 h-8 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors"
+                            class="w-7 h-7 rounded-lg hover:bg-white/10 flex items-center justify-center transition-colors"
                         >
-                            <div class="w-5 h-5 text-white flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons.x}</div>
+                            <div class="w-4 h-4 text-white flex items-center justify-center" style="display: flex; align-items: center; justify-content: center;">${icons.x}</div>
                         </button>
                         </div>
                     </div>
                     
                     <!-- Messages -->
-                    <div id="messages-container" class="flex-1 overflow-y-auto scrollbar-hide flex flex-col-reverse" style="max-height: calc(90vh - 180px);">
-                        <div class="max-w-[440px] mx-auto px-4 py-4 space-y-4 w-full">
+                    <div id="messages-container" class="flex-1 overflow-y-auto scrollbar-hide" style="width: 100%; max-height: calc(100vh - 200px); scroll-behavior: smooth; position: relative;">
+                        <div class="max-w-[440px] mx-auto w-full space-y-3" style="width: 100%; padding-top: 16px; padding-bottom: 100vh;">
                         ${renderMessages()}
                         </div>
+                        
+                        <!-- Scroll to bottom button -->
+                        <button 
+                            id="scroll-to-bottom-btn"
+                            onclick="scrollToEndOfMessage()"
+                            class="hidden fixed bottom-24 right-6 md:right-auto md:left-[calc(50%+180px)] bg-[#1C2B4F] text-white rounded-full p-3 shadow-lg hover:bg-[#243550] transition-all z-50"
+                            style="display: none;"
+                        >
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M19 12l-7 7-7-7"/>
+                            </svg>
+                        </button>
                     </div>
                     
                     <!-- Input -->
@@ -667,35 +656,34 @@
         function renderMessages() {
             let html = '';
             
-            // Render messages in reverse order (newest first)
-            const reversedMessages = [...state.messages].reverse();
-            
-            reversedMessages.forEach(msg => {
-                if (msg.type === 'assistant') {
+            // Рендерим в ХРОНОЛОГИЧЕСКОМ порядке (старые первые, новые последние)
+            // НЕ делаем reverse!
+            state.messages.forEach((msg, index) => {
+                if (msg.type === 'user') {
                     html += `
-                        <div class="flex gap-2 chat-message">
-                            <div class="w-8 h-8 rounded-full bg-[#1C2B4F] flex items-center justify-center flex-shrink-0">
-                                <div class="w-4 h-4 text-white">${icons.messageCircle}</div>
+                        <div class="flex justify-end w-full chat-message px-2" style="display: flex !important; justify-content: flex-end !important; width: 100%;">
+                            <div class="bg-[#1C2B4F] text-white rounded-2xl rounded-tr-none px-4 py-2.5 message-bubble max-w-[85%]">
+                                <p class="text-sm">${msg.content}</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (msg.type === 'assistant') {
+                    html += `
+                        <div class="flex gap-2 chat-message px-2">
+                            <div class="w-7 h-7 rounded-full bg-[#1C2B4F] flex items-center justify-center flex-shrink-0">
+                                <div class="w-3.5 h-3.5 text-white">${icons.messageCircle}</div>
                             </div>
                             <div class="flex-1">
-                                <div class="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-3 inline-block message-bubble">
+                                <div class="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 inline-block message-bubble">
                                     <p class="text-sm text-slate-900">${msg.content}</p>
                                 </div>
                                 ${msg.flights ? renderFlightsInMessage(msg.flights) : ''}
                             </div>
                         </div>
                     `;
-                } else if (msg.type === 'user') {
-                    html += `
-                        <div class="flex gap-2 justify-end chat-message">
-                            <div class="bg-[#1C2B4F] text-white rounded-2xl rounded-tr-none px-4 py-3 inline-block message-bubble max-w-[80%]">
-                                <p class="text-sm">${msg.content}</p>
-                            </div>
-                        </div>
-                    `;
                 } else if (msg.type === 'quick-actions') {
                     html += `
-                        <div class="flex gap-2 chat-message">
+                        <div class="flex gap-2 chat-message px-2">
                             <div class="w-8"></div>
                             <div class="flex flex-wrap gap-2">
                                 ${msg.actions.map(action => `
@@ -713,13 +701,14 @@
                 }
             });
             
+            // Typing indicator в конце (последним)
             if (state.isTyping) {
                 html += `
-                    <div class="flex gap-2 chat-message">
-                        <div class="w-8 h-8 rounded-full bg-[#1C2B4F] flex items-center justify-center flex-shrink-0">
-                            <div class="w-4 h-4 text-white">${icons.messageCircle}</div>
+                    <div class="flex gap-2 chat-message px-2">
+                        <div class="w-7 h-7 rounded-full bg-[#1C2B4F] flex items-center justify-center flex-shrink-0">
+                            <div class="w-3.5 h-3.5 text-white">${icons.messageCircle}</div>
                         </div>
-                        <div class="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-3 inline-block">
+                        <div class="bg-slate-100 rounded-2xl rounded-tl-none px-4 py-2.5 inline-block">
                             <div class="typing-indicator">
                                 <div class="typing-dot"></div>
                                 <div class="typing-dot"></div>
@@ -755,35 +744,27 @@
             const message = input.value.trim();
             
             state.view = 'chat';
-            state.messages = [
-                {
-                    type: 'assistant',
-                    content: "Hello! I'm AURA, your Air Astana Digital Concierge. How can I assist you today?"
-                },
-                {
-                    type: 'quick-actions',
-                    actions: [
-                        { label: 'Flight status', icon: 'plane' },
-                        { label: 'Baggage rules', icon: 'briefcase' },
-                        { label: 'Flight schedule', icon: 'users' }
-                    ]
-                }
-            ];
+            state.messages = [];
             
             if (message) {
                 state.messages.push({
                     type: 'user',
                     content: message
                 });
-                
+            }
+            
+            // Render with message immediately
+            render();
+            
+            // Scroll to top where newest messages are
+            scrollToBottom();
+            
+            if (message) {
                 // Simulate response
                 setTimeout(() => {
                     respondToMessage(message);
                 }, 1000);
             }
-            
-            render();
-            setTimeout(scrollToTop, 100);
         }
 
         function goBackToWelcome() {
@@ -819,12 +800,11 @@
             }
             
             render();
-            scrollToTop();
             
             // Simulate AI response
             state.isTyping = true;
             render();
-            scrollToTop();
+            scrollToBottom(true); // Плавный скролл при отправке сообщения
             
             setTimeout(() => {
                 state.isTyping = false;
@@ -858,15 +838,21 @@
                     type: 'assistant',
                     content: "For Economy Class, you're allowed 1 piece of checked baggage up to 23kg and 1 carry-on up to 8kg. Business Class allows 2 pieces of 32kg each. Would you like more specific information about baggage restrictions?"
                 });
+            } else if (lowerMessage.includes('long') || lowerMessage.includes('test')) {
+                // Длинный ответ для тестирования скролла
+                state.messages.push({
+                    type: 'assistant',
+                    content: "Конечно! Я рад помочь вам с подробной информацией о наших услугах.\n\nAir Astana предлагает широкий спектр услуг для комфортного путешествия. Наш флот состоит из современных самолетов Boeing и Airbus, оснащенных всеми удобствами для пассажиров.\n\nМы предлагаем несколько классов обслуживания:\n\n1. Economy Class - комфортные кресла с регулируемыми спинками, бесплатное питание и напитки на всех рейсах.\n\n2. Business Class - просторные кресла-трансформеры, премиальное меню, приоритетная регистрация и посадка, доступ в бизнес-залы аэропортов.\n\n3. Nomad Club - наша программа лояльности, которая позволяет накапливать мили и получать различные привилегии.\n\nОтносительно багажа: в эконом-классе разрешено 1 место багажа до 23 кг и 1 ручная кладь до 8 кг. В бизнес-классе - 2 места по 32 кг каждое.\n\nТакже мы предлагаем дополнительные услуги: выбор места, дополнительный багаж, специальное питание, помощь пассажирам с ограниченными возможностями.\n\nЕсли у вас есть конкретные вопросы, я с удовольствием на них отвечу!"
+                });
             } else {
                 state.messages.push({
                     type: 'assistant',
-                    content: "I'd be happy to help you with that! I can assist with flight status, bookings, baggage information, and general travel inquiries. What would you like to know more about?"
+                    content: "I'd be happy to help you with that! I can assist with flight status, bookings, baggage information, and general travel inquiries. What would you like to know more about? (Try typing 'long test' to see a long response)"
                 });
             }
             
             render();
-            scrollToTop();
+            scrollToBottom(false); // Мгновенный скролл чтобы не было дергания
         }
 
         function handleKeyDown(event) {
@@ -881,11 +867,153 @@
             textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
         }
 
-        function scrollToTop() {
+        // Флаг программного скролла
+        let isProgrammaticScroll = false;
+        
+        function scrollToBottom(smooth = true) {
             const container = document.getElementById('messages-container');
             if (container) {
-                container.scrollTop = 0;
+                // Устанавливаем флаг что это программный скролл
+                isProgrammaticScroll = true;
+                
+                // Используем requestAnimationFrame для синхронизации с браузером
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        // Находим все сообщения
+                        const messages = container.querySelectorAll('.chat-message');
+                        if (messages.length > 0) {
+                            // Ищем ПОСЛЕДНЕЕ USER сообщение (с justify-end)
+                            let lastUserMessage = null;
+                            for (let i = messages.length - 1; i >= 0; i--) {
+                                if (messages[i].classList.contains('justify-end')) {
+                                    lastUserMessage = messages[i];
+                                    break;
+                                }
+                            }
+                            
+                            // Скроллим к последнему user сообщению
+                            if (lastUserMessage) {
+                                // Получаем позицию элемента относительно контейнера
+                                const messageTop = lastUserMessage.offsetTop;
+                                
+                                if (smooth) {
+                                    // Плавный скролл (первый раз)
+                                    container.scrollTo({
+                                        top: messageTop - 95,
+                                        behavior: 'auto' // CSS scroll-behavior: smooth сработает
+                                    });
+                                } else {
+                                    // Мгновенный скролл (при появлении ответа)
+                                    container.style.scrollBehavior = 'auto';
+                                    container.scrollTop = messageTop - 95;
+                                    // Возвращаем обратно
+                                    setTimeout(() => {
+                                        container.style.scrollBehavior = '';
+                                    }, 0);
+                                }
+                            }
+                        }
+                        
+                        // Проверяем нужна ли кнопка скролла
+                        updateScrollButton();
+                        
+                        // Сбрасываем флаг через 500ms (после завершения анимации)
+                        setTimeout(() => {
+                            isProgrammaticScroll = false;
+                        }, 500);
+                    });
+                });
             }
+        }
+        
+        // Скролл к концу последнего сообщения AURA
+        function scrollToEndOfMessage() {
+            const container = document.getElementById('messages-container');
+            const messages = container.querySelectorAll('.chat-message');
+            
+            // Находим последнее assistant сообщение
+            let lastAssistantMessage = null;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (!messages[i].classList.contains('justify-end')) {
+                    lastAssistantMessage = messages[i];
+                    break;
+                }
+            }
+            
+            if (lastAssistantMessage) {
+                // Скроллим к низу последнего assistant сообщения
+                const messageBottom = lastAssistantMessage.offsetTop + lastAssistantMessage.offsetHeight;
+                container.scrollTo({
+                    top: messageBottom - container.clientHeight + 20, // 20px отступ снизу
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        // Проверяем нужна ли кнопка скролла вниз
+        function updateScrollButton() {
+            const container = document.getElementById('messages-container');
+            const button = document.getElementById('scroll-to-bottom-btn');
+            const messages = container.querySelectorAll('.chat-message');
+            
+            if (!button || messages.length === 0) return;
+            
+            // Находим последнее assistant сообщение
+            let lastAssistantMessage = null;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (!messages[i].classList.contains('justify-end')) {
+                    lastAssistantMessage = messages[i];
+                    break;
+                }
+            }
+            
+            if (lastAssistantMessage) {
+                const messageBottom = lastAssistantMessage.offsetTop + lastAssistantMessage.offsetHeight;
+                const containerBottom = container.scrollTop + container.clientHeight;
+                
+                // Показываем кнопку если есть контент ниже (больше 100px скрыто)
+                if (messageBottom - containerBottom > 100) {
+                    button.style.display = 'block';
+                } else {
+                    button.style.display = 'none';
+                }
+            }
+        }
+        
+        // Лимит скролла - не даем ответу AURA уйти полностью
+        function limitScroll() {
+            // Не применяем лимит во время программного скролла
+            if (isProgrammaticScroll) return;
+            
+            const container = document.getElementById('messages-container');
+            const messages = container.querySelectorAll('.chat-message');
+            
+            if (messages.length === 0) return;
+            
+            // Находим последнее assistant сообщение
+            let lastAssistantMessage = null;
+            for (let i = messages.length - 1; i >= 0; i--) {
+                if (!messages[i].classList.contains('justify-end')) {
+                    lastAssistantMessage = messages[i];
+                    break;
+                }
+            }
+            
+            if (lastAssistantMessage) {
+                const messageBottom = lastAssistantMessage.offsetTop + lastAssistantMessage.offsetHeight;
+                const containerTop = container.scrollTop;
+                
+                // Минимум 100px последнего ответа должно быть видно
+                const minVisibleHeight = 100;
+                const maxScroll = messageBottom - minVisibleHeight;
+                
+                if (containerTop > maxScroll) {
+                    container.scrollTop = maxScroll;
+                }
+            }
+            
+            // Проверяем кнопку
+            updateScrollButton();
         }
 
         // Handle input focus - hide header on mobile
@@ -952,6 +1080,9 @@
             } else {
                 app.innerHTML = renderChatView();
                 
+                // Force layout calculation immediately
+                app.offsetHeight;
+                
                 // Focus input
                 const input = document.getElementById('chat-input');
                 if (input) {
@@ -970,6 +1101,18 @@
                         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
                     });
                 }
+                
+                // Добавляем scroll listener для лимита и кнопки
+                const messagesContainer = document.getElementById('messages-container');
+                if (messagesContainer) {
+                    messagesContainer.addEventListener('scroll', () => {
+                        // Если пользователь скроллит вручную, сбрасываем флаг
+                        // (но даем программному скроллу завершиться)
+                        setTimeout(() => {
+                            limitScroll();
+                        }, 10);
+                    });
+                }
             }
         }
 
@@ -977,51 +1120,14 @@
         function initApp() {
             render();
             
-            // Start the transition after 1 second
+            // Fade out loader screen after 1 second
             setTimeout(() => {
                 const loaderScreen = document.getElementById('loader-screen');
-                const transitioningIcon = document.getElementById('transitioning-icon');
-                const loaderIcon = document.querySelector('.loader-icon-container');
-                
-                if (loaderIcon && transitioningIcon) {
-                    // Get the current position of the loader icon
-                    const iconRect = loaderIcon.getBoundingClientRect();
-                    
-                    // Show transitioning icon at loader position
-                    transitioningIcon.style.display = 'flex';
-                    transitioningIcon.style.left = iconRect.left + 'px';
-                    transitioningIcon.style.top = iconRect.top + 'px';
-                    
-                    // Hide loader screen
-                    if (loaderScreen) {
-                        loaderScreen.classList.add('fade-out');
-                        setTimeout(() => {
-                            loaderScreen.style.display = 'none';
-                        }, 500);
-                    }
-                    
-                    // Wait for render to complete, then move icon to header logo
+                if (loaderScreen) {
+                    loaderScreen.classList.add('fade-out');
                     setTimeout(() => {
-                        const headerLogo = document.querySelector('.w-12.h-12.rounded-full');
-                        if (headerLogo) {
-                            const headerRect = headerLogo.getBoundingClientRect();
-                            
-                            // Move icon to header logo position
-                            transitioningIcon.style.left = (headerRect.left + headerRect.width / 2 - 40) + 'px';
-                            transitioningIcon.style.top = (headerRect.top + headerRect.height / 2 - 40) + 'px';
-                            transitioningIcon.classList.add('move-to-header');
-                            
-                            // Remove transitioning icon after animation
-                            setTimeout(() => {
-                                transitioningIcon.style.display = 'none';
-                            }, 600);
-                        }
-                    }, 100);
-                } else {
-                    // Fallback: just hide the loader if elements not found
-                    if (loaderScreen) {
                         loaderScreen.style.display = 'none';
-                    }
+                    }, 500);
                 }
             }, 1000);
         }
